@@ -232,7 +232,7 @@ async function convertOne(file, autoHint, onPage) {
   }
 
   const blob = out.output("blob");
-  const name = file.name.replace(/\.pdf$/i, "") + "_IMAGENS.pdf";
+  const name = file.name.replace(/\.pdf$/i, "") + "_img.pdf";
 
   try {
     await first.cleanup();
@@ -272,3 +272,4 @@ function addResultItem(name, blobOrNull, metaText) {
   }
   el.resultList.append(li);
 }
+
