@@ -1,4 +1,4 @@
-// PDF.js worker
+// PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
 const { jsPDF } = window.jspdf;
@@ -28,7 +28,6 @@ let queue = []; // {id, file}
 let nextId = 1;
 let zipUrl = null;
 
-// ---------- Utils ----------
 const fmtSize = (b) =>
   b < 1024
     ? `${b} B`
@@ -93,7 +92,6 @@ function refreshQueue() {
   el.clearBtn.disabled = queue.length === 0;
 }
 
-// ---------- Heurística automática ----------
 function autoParams(widthPt, heightPt) {
   const memGB = Number(navigator.deviceMemory || 4);
   const DPI_TARGET = 200,
@@ -107,10 +105,10 @@ function autoParams(widthPt, heightPt) {
   return { dpi, quality }; // RGB sempre
 }
 
-// ---------- Eventos (correção do duplo seletor) ----------
+// ---------- Eventos ----------
 el.addBtn.addEventListener("click", (e) => {
-  e.stopPropagation(); // impede borbulhar para a dropzone
-  el.input.value = ""; // permite escolher o mesmo arquivo de novo
+  e.stopPropagation(); 
+  el.input.value = "";
   el.input.click();
 });
 el.addBtn.addEventListener("keydown", (e) => {
@@ -122,14 +120,14 @@ el.addBtn.addEventListener("keydown", (e) => {
   }
 });
 
-// Dropzone: só abre seletor se o clique NÃO veio do botão interno
+
 el.dropzone.addEventListener("click", (e) => {
-  if (e.target.closest("#addBtn")) return; // ignora clique no botão
+  if (e.target.closest("#addBtn")) return; 
   el.input.value = "";
   el.input.click();
 });
 
-// Drag & drop
+// drop
 ["dragenter", "dragover"].forEach((t) =>
   el.dropzone.addEventListener(t, (ev) => {
     ev.preventDefault();
@@ -150,7 +148,7 @@ el.dropzone.addEventListener("drop", (ev) =>
 el.input.addEventListener("change", (e) => {
   const files = Array.from(e.target.files || []);
   if (files.length) addToQueue(files);
-  el.input.value = ""; // limpa após uso para não reabrir/“grudar” valor anterior
+  el.input.value = ""; 
 });
 
 el.clearBtn.addEventListener("click", () => {
@@ -162,7 +160,7 @@ el.startBtn.addEventListener("click", () => {
 });
 el.againBtn.addEventListener("click", resetUI);
 
-// ---------- Fila: adicionar ----------
+// ---------- Fila ----------
 function addToQueue(files) {
   const pdfs = files.filter(
     (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
@@ -175,7 +173,7 @@ function addToQueue(files) {
   refreshQueue();
 }
 
-// ---------- Metadados ----------
+
 async function readMeta(file) {
   try {
     const buf = await file.arrayBuffer();
@@ -261,7 +259,6 @@ async function convertBatch(files) {
   setBusy(false);
 }
 
-// Converte 1 arquivo em PDF-imagem
 async function convertOne(file, autoHint, onPage) {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -340,3 +337,4 @@ function addResultItem(name, blob, metaText) {
   }
   el.resultList.append(li);
 }
+
