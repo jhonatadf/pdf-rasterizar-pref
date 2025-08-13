@@ -24,7 +24,7 @@ const el = {
   againBtn: document.getElementById("againBtn"),
 };
 
-let queue = []; // {id, file}
+let queue = []; 
 let nextId = 1;
 let zipUrl = null;
 
@@ -102,7 +102,7 @@ function autoParams(widthPt, heightPt) {
   const dpiCap = Math.floor(Math.sqrt(MAX_PIXELS / denom));
   const dpi = Math.max(DPI_MIN, Math.min(DPI_TARGET, dpiCap));
   const quality = memGB < 4 ? 0.86 : memGB < 6 ? 0.88 : 0.9;
-  return { dpi, quality }; // RGB sempre
+  return { dpi, quality }; 
 }
 
 // ---------- Eventos ----------
@@ -301,7 +301,7 @@ async function convertOne(file, autoHint, onPage) {
   }
 
   const blob = out.output("blob");
-  const name = file.name.replace(/\.pdf$/i, "") + "_IMAGENS.pdf";
+  const name = file.name.replace(/\.pdf$/i, "") + "_limpo.pdf";
 
   try {
     await first.cleanup();
@@ -337,4 +337,5 @@ function addResultItem(name, blob, metaText) {
   }
   el.resultList.append(li);
 }
+
 
