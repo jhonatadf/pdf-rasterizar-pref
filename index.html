@@ -1,105 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="color-scheme" content="dark light" />
-    <title>Conversor de PDF - DMA</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  </head>
-  <body>
-    <main class="container">
-      <header class="header">
-        <h1>Conversor de PDF</h1>
-        <p>
-          Conversão <strong>segura e automática</strong>, limpeza de qualquer
-          elemento não permitido do documento.
-        </p>
-      </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light">
+  <title>Conversor de PDF</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- PDF.js -->
+  <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <!-- jsPDF -->
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- JSZip -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Conversor de PDF</h1>
+      <p>Conversão segura e automática, limpeza de qualquer elemento não permitido do documento.</p>
+    </header>
 
-      <section
-        id="dropzone"
-        class="dropzone"
-        tabindex="0"
-        aria-label="Área para soltar PDFs"
-      >
-        <input
-          id="fileInput"
-          type="file"
-          accept="application/pdf"
-          multiple
-          hidden
-        />
-        <div class="dz-content">
-          <svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
-            <path
-              d="M12 16V4m0 0l-4 4m4-4l4 4M6 20h12"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <h2>Solte o PDF aqui</h2>
-          <button id="selectBtn" type="button" class="btn">
-            Selecionar PDF(s)
-          </button>
-          <p class="hint">
-            Saída: PDF limpo. É possível anexar mais de um PDF.
-          </p>
+    <!-- Anexar -->
+    <section id="dropzone" class="dropzone" tabindex="0" aria-label="Área para soltar PDFs">
+      <input id="fileInput" type="file" accept="application/pdf" multiple hidden />
+      <div class="dz-content">
+        <svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4M6 20h12" fill="none" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2>Solte os PDFs aqui</h2>
+        <div class="actions">
+          <button id="addBtn" type="button" class="btn">Adicionar PDF(s)</button>
         </div>
-      </section>
+        <p class="hint">Você pode anexar um por vez e montar a fila antes de converter.</p>
+      </div>
+    </section>
 
-      <section
-        id="status"
-        class="status hidden"
-        aria-live="polite"
-        aria-busy="false"
-      >
-        <div class="status-row">
-          <div class="info">
-            <strong id="infoTitle">–</strong>
-            <small id="infoFiles">–</small>
-            <small id="infoAlgo" class="muted">–</small>
-          </div>
-          <div
-            class="progress-wrap"
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-          >
-            <div id="progressBar" class="progress"></div>
-          </div>
+    <!-- Fila -->
+    <section class="queue card">
+      <div class="queue-head">
+        <h3>Fila de conversão</h3>
+        <small id="queueCount">0 item(s)</small>
+      </div>
+      <ul id="queueList" class="grid"></ul>
+      <div class="actions">
+        <button id="startBtn" class="btn" disabled>Converter todos</button>
+        <button id="clearBtn" class="btn btn-ghost" disabled>Limpar fila</button>
+      </div>
+    </section>
+
+    <!-- Status + Resultados -->
+    <section id="status" class="status hidden" aria-live="polite" aria-busy="false">
+      <div class="status-row">
+        <div class="info">
+          <strong id="infoTitle">–</strong>
+          <small id="infoFiles">–</small>
+          <small id="infoAlgo" class="muted">–</small>
         </div>
-        <div id="message" class="message"></div>
-
-        <div id="results" class="results hidden">
-          <h3>Resultados</h3>
-          <ul id="resultList" class="grid"></ul>
-          <div class="actions">
-            <a id="zipBtn" class="btn" href="#" download="convertidos.zip"
-              >Baixar tudo (.zip)</a
-            >
-            <button id="againBtn" class="btn btn-ghost">
-              Converter outros
-            </button>
-          </div>
+        <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="progressBar" class="progress"></div>
         </div>
-      </section>
-    </main>
+      </div>
+      <div id="message" class="message"></div>
 
-    <footer class="footer">
-      <small
-        >Departamento de Modernização Administrativa
-        <p>Guarulhos, 2025</p>
-      </small>
-    </footer>
+      <div id="results" class="results hidden">
+        <h3>Resultados</h3>
+        <ul id="resultList" class="grid"></ul>
+        <div class="actions">
+          <a id="zipBtn" class="btn" href="#" download="convertidos.zip">Baixar tudo (.zip)</a>
+          <button id="againBtn" class="btn btn-ghost">Nova conversão</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script src="app.js"></script>
-  </body>
+  <footer class="footer">
+    <small>DMA, Guarulhos <p>2025</p></small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
 </html>
